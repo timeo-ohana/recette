@@ -19,7 +19,7 @@
 
     <link
         rel="manifest"
-        href="/manifest.json"
+        href="./manifest.json"
     >
 
     <link
@@ -39,7 +39,7 @@
 
         <button
             class="back-button"
-            onclick="window.location.href='/'"
+            onclick="window.location.href='./'"
         >
             ←
         </button>
@@ -150,7 +150,7 @@
                     "Recette introuvable."
                 );
 
-                window.location.href = "/";
+                window.location.href = "./";
 
                 return;
 
@@ -171,7 +171,7 @@
                         "Recette introuvable."
                     );
 
-                    window.location.href = "/";
+                    window.location.href = "./";
 
                     return;
 
@@ -322,7 +322,7 @@
         function modifierRecette() {
 
             window.location.href =
-                "/new-recipe.html?edit=" +
+                "./new-recipe.html?edit=" +
                 recipeId;
 
         }
@@ -359,7 +359,7 @@
                 );
 
 
-                window.location.href = "/";
+                window.location.href = "./";
 
 
             } catch (erreur) {
