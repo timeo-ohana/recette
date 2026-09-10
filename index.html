@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Mes recettes</title>
+
+    <link
+        rel="stylesheet"
+        href="static/style.css"
+    >
+
+    <link
+        rel="manifest"
+        href="/manifest.json"
+    >
+
+    <link
+        rel="apple-touch-icon"
+        href="static/icons/apple-touch-icon.png"
+    >
+
+    <script src="static/app.js"></script>
+
+</head>
+
+
+<body>
+
+
+    <!-- ==========================================
+         HEADER
+         ========================================== -->
+
+    <header class="top-bar">
+
+        <h1>
+            Recettes
+        </h1>
+
+
+        <button
+            class="add-button"
+            onclick="window.location.href='/new-recipe.html'"
+        >
+            +
+        </button>
+
+    </header>
+
+
+    <!-- ==========================================
+         PAGE ACCUEIL
+         ========================================== -->
+
+    <main class="home-page">
+
+
+        <!-- ==========================================
+             RECHERCHE
+             ========================================== -->
+
+        <div class="search-container">
+
+            <input
+                type="search"
+                id="search"
+                placeholder="Rechercher une recette..."
+            >
+
+        </div>
+
+
+        <!-- ==========================================
+             RECETTES
+             ========================================== -->
+
+        <section
+            class="recipes-grid"
+            id="recipes-grid"
+        >
+        </section>
+
+
+        <!-- ==========================================
+             SAUVEGARDE / RESTAURATION
+             ========================================== -->
+
+        <div class="backup-buttons">
+
+            <button
+                type="button"
+                class="secondary-button"
+                onclick="exporterRecettes()"
+            >
+                Sauvegarder mes recettes
+            </button>
+
+
+            <button
+                type="button"
+                class="secondary-button"
+                onclick="document.getElementById('import-file').click()"
+            >
+                Restaurer mes recettes
+            </button>
+
+
+            <input
+                type="file"
+                id="import-file"
+                accept=".json,application/json"
+                style="display: none;"
+                onchange="importerRecettes(event)"
+            >
+
+        </div>
+
+
+    </main>
+
+
+    <script>
+
+
+        // ==========================================
+        // VARIABLES
+        // ==========================================
+
+        let toutesLesRecettes = [];
+
+
+        // ==========================================
+        // CHARGER LES RECETTES
+        // ==========================================
+
+        async function chargerRecettes() {
+
+            try {
+
+                toutesLesRecettes =
+                    await obtenirRecettes();
+
+
+                afficherRecettes(
+                    toutesLesRecettes
+                );
+
+
+            } catch (erreur) {
+
+                console.error(erreur);
+
+
+                alert(
+                    "Impossible de charger les recettes."
+                );
+
+            }
+
+        }
+
+
+        // ==========================================
+        // AFFICHER LES RECETTES
+        // ==========================================
+
+        function afficherRecettes(
+            recettes
+        ) {
+
+            const grille =
+                document.getElementById(
+                    "recipes-grid"
+                );
+
+
+            grille.innerHTML = "";
+
+
+            recettes.forEach(
+                function(recette) {
+
+
+                    // ==================================
+                    // CARTE
+                    // ==================================
+
+                    const carte =
+                        document.createElement(
+                            "article"
+                        );
+
+
+                    carte.className =
+                        "recipe-card";
+
+
+                    // ==================================
+                    // IMAGE
+                    // ==================================
+
+                    const image =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    image.className =
+                        "recipe-image";
+
+
+                    if (recette.photo) {
+
+
+                        if (
+                            recette.photo instanceof Blob
+                        ) {
+
+                            const imageUrl =
+                                URL.createObjectURL(
+                                    recette.photo
+                                );
+
+
+                            image.style.backgroundImage =
+                                `url("${imageUrl}")`;
+
+
+                        } else {
+
+                            image.style.backgroundImage =
+                                `url("${recette.photo}")`;
+
+                        }
+
+                    }
+
+
+                    // ==================================
+                    // NOM
+                    // ==================================
+
+                    const nom =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    nom.className =
+                        "recipe-name";
+
+
+                    nom.textContent =
+                        recette.name;
+
+
+                    // ==================================
+                    // ASSEMBLER
+                    // ==================================
+
+                    carte.appendChild(
+                        image
+                    );
+
+
+                    carte.appendChild(
+                        nom
+                    );
+
+
+                    // ==================================
+                    // OUVRIR LA RECETTE
+                    // ==================================
+
+                    carte.addEventListener(
+                        "click",
+                        function() {
+
+                            window.location.href =
+                                "/recipe.html?id=" +
+                                recette.id;
+
+                        }
+                    );
+
+
+                    grille.appendChild(
+                        carte
+                    );
+
+                }
+            );
+
+        }
+
+
+        // ==========================================
+        // CONVERTIR PHOTO EN BASE64
+        // ==========================================
+
+        function photoVersTexte(photo) {
+
+            return new Promise(
+                function(resolve, reject) {
+
+
+                    if (!photo) {
+
+                        resolve(null);
+
+                        return;
+
+                    }
+
+
+                    // Si c'est déjà du texte
+
+                    if (
+                        typeof photo === "string"
+                    ) {
+
+                        resolve(photo);
+
+                        return;
+
+                    }
+
+
+                    const lecteur =
+                        new FileReader();
+
+
+                    lecteur.onload =
+                        function() {
+
+                            resolve(
+                                lecteur.result
+                            );
+
+                        };
+
+
+                    lecteur.onerror =
+                        function() {
+
+                            reject(
+                                lecteur.error
+                            );
+
+                        };
+
+
+                    lecteur.readAsDataURL(
+                        photo
+                    );
+
+                }
+            );
+
+        }
+
+
+        // ==========================================
+        // CONVERTIR BASE64 EN PHOTO
+        // ==========================================
+
+        async function texteVersPhoto(
+            texte
+        ) {
+
+            if (!texte) {
+
+                return null;
+
+            }
+
+
+            const reponse =
+                await fetch(texte);
+
+
+            return await reponse.blob();
+
+        }
+
+
+        // ==========================================
+        // EXPORT COMPLET
+        // ==========================================
+
+        async function exporterRecettes() {
+
+            try {
+
+                const recettes =
+                    await obtenirRecettes();
+
+
+                const sauvegarde = [];
+
+
+                for (
+                    const recette of recettes
+                ) {
+
+
+                    let photo = null;
+
+
+                    if (recette.photo) {
+
+                        photo =
+                            await photoVersTexte(
+                                recette.photo
+                            );
+
+                    }
+
+
+                    sauvegarde.push({
+
+                        name:
+                            recette.name,
+
+
+                        preparation_time:
+                            recette.preparation_time || "",
+
+
+                        description:
+                            recette.description || "",
+
+
+                        ingredients:
+                            recette.ingredients || [],
+
+
+                        photo:
+                            photo
+
+                    });
+
+                }
+
+
+                const donnees =
+                    JSON.stringify(
+                        sauvegarde,
+                        null,
+                        2
+                    );
+
+
+                const fichier =
+                    new Blob(
+                        [donnees],
+                        {
+                            type:
+                                "application/json"
+                        }
+                    );
+
+
+                const url =
+                    URL.createObjectURL(
+                        fichier
+                    );
+
+
+                const lien =
+                    document.createElement(
+                        "a"
+                    );
+
+
+                const date =
+                    new Date()
+                        .toISOString()
+                        .slice(0, 10);
+
+
+                lien.href =
+                    url;
+
+
+                lien.download =
+                    "mes-recettes-" +
+                    date +
+                    ".json";
+
+
+                document.body.appendChild(
+                    lien
+                );
+
+
+                lien.click();
+
+
+                document.body.removeChild(
+                    lien
+                );
+
+
+                URL.revokeObjectURL(
+                    url
+                );
+
+
+                alert(
+                    "Sauvegarde complète créée !"
+                );
+
+
+            } catch (erreur) {
+
+                console.error(erreur);
+
+
+                alert(
+                    "Impossible de créer la sauvegarde."
+                );
+
+            }
+
+        }
+
+
+        // ==========================================
+        // IMPORT COMPLET
+        // ==========================================
+
+        async function importerRecettes(
+            event
+        ) {
+
+            const fichier =
+                event.target.files[0];
+
+
+            if (!fichier) {
+
+                return;
+
+            }
+
+
+            try {
+
+                const texte =
+                    await fichier.text();
+
+
+                const sauvegarde =
+                    JSON.parse(
+                        texte
+                    );
+
+
+                if (
+                    !Array.isArray(
+                        sauvegarde
+                    )
+                ) {
+
+                    throw new Error(
+                        "Format invalide"
+                    );
+
+                }
+
+
+                let nombreImporte = 0;
+
+
+                for (
+                    const recette
+                    of sauvegarde
+                ) {
+
+
+                    if (
+                        !recette.name
+                    ) {
+
+                        continue;
+
+                    }
+
+
+                    let photo = null;
+
+
+                    if (
+                        recette.photo
+                    ) {
+
+                        photo =
+                            await texteVersPhoto(
+                                recette.photo
+                            );
+
+                    }
+
+
+                    const nouvelleRecette = {
+
+                        name:
+                            recette.name,
+
+
+                        preparation_time:
+                            recette.preparation_time || "",
+
+
+                        description:
+                            recette.description || "",
+
+
+                        ingredients:
+                            recette.ingredients || [],
+
+
+                        photo:
+                            photo
+
+                    };
+
+
+                    await ajouterRecette(
+                        nouvelleRecette
+                    );
+
+
+                    nombreImporte++;
+
+                }
+
+
+                alert(
+                    nombreImporte +
+                    " recette(s) restaurée(s) !"
+                );
+
+
+                await chargerRecettes();
+
+
+            } catch (erreur) {
+
+                console.error(erreur);
+
+
+                alert(
+                    "Impossible de restaurer la sauvegarde."
+                );
+
+            }
+
+
+            // Permet de sélectionner
+            // à nouveau le même fichier
+
+            event.target.value = "";
+
+        }
+
+
+        // ==========================================
+        // RECHERCHE
+        // ==========================================
+
+        const recherche =
+            document.getElementById(
+                "search"
+            );
+
+
+        recherche.addEventListener(
+            "input",
+            function() {
+
+
+                const texte =
+                    recherche.value
+                        .toLowerCase()
+                        .trim();
+
+
+                const resultats =
+                    toutesLesRecettes.filter(
+                        function(recette) {
+
+                            return recette.name
+                                .toLowerCase()
+                                .includes(
+                                    texte
+                                );
+
+                        }
+                    );
+
+
+                afficherRecettes(
+                    resultats
+                );
+
+            }
+        );
+
+
+        // ==========================================
+        // SERVICE WORKER
+        // ==========================================
+
+        if (
+            "serviceWorker"
+            in navigator
+        ) {
+
+            navigator.serviceWorker.register(
+                "static/service-worker.js"
+            );
+
+        }
+
+
+        // ==========================================
+        // DEMARRER
+        // ==========================================
+
+        chargerRecettes();
+
+
+    </script>
+
+
+</body>
+
+</html>

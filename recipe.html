@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Recette</title>
+
+    <link
+        rel="stylesheet"
+        href="static/style.css"
+    >
+
+    <link
+        rel="manifest"
+        href="/manifest.json"
+    >
+
+    <link
+        rel="apple-touch-icon"
+        href="static/icons/apple-touch-icon.png"
+    >
+
+    <script src="static/app.js"></script>
+
+</head>
+
+
+<body>
+
+
+    <header class="top-bar">
+
+        <button
+            class="back-button"
+            onclick="window.location.href='/'"
+        >
+            ←
+        </button>
+
+        <h1 id="recipe-title">
+            Recette
+        </h1>
+
+    </header>
+
+
+    <main>
+
+        <div class="recipe-detail">
+
+
+            <!-- TEMPS -->
+
+            <div
+                id="recipe-time"
+                class="detail-time"
+            ></div>
+
+
+            <!-- PHOTO -->
+
+            <img
+                id="recipe-photo"
+                class="detail-photo"
+                alt="Photo de la recette"
+                style="display: none;"
+            >
+
+
+            <!-- INGREDIENTS -->
+
+            <h2>
+                Ingrédients
+            </h2>
+
+            <div id="ingredients-list">
+            </div>
+
+
+            <!-- PREPARATION -->
+
+            <h2>
+                Préparation
+            </h2>
+
+            <div
+                id="recipe-description"
+                class="detail-description"
+            ></div>
+
+
+            <!-- BOUTONS -->
+
+            <div class="recipe-actions">
+
+                <button
+                    class="edit-button"
+                    onclick="modifierRecette()"
+                >
+                    Modifier la recette
+                </button>
+
+                <button
+                    class="delete-button"
+                    onclick="supprimerRecette()"
+                >
+                    Supprimer la recette
+                </button>
+
+            </div>
+
+
+        </div>
+
+    </main>
+
+
+    <script>
+
+
+        // ==========================================
+        // RECUPERER L'ID
+        // ==========================================
+
+        const params =
+            new URLSearchParams(
+                window.location.search
+            );
+
+        const recipeId =
+            params.get("id");
+
+
+        // ==========================================
+        // CHARGER LA RECETTE
+        // ==========================================
+
+        async function chargerRecette() {
+
+            if (!recipeId) {
+
+                alert(
+                    "Recette introuvable."
+                );
+
+                window.location.href = "/";
+
+                return;
+
+            }
+
+
+            try {
+
+                const recette =
+                    await obtenirRecette(
+                        recipeId
+                    );
+
+
+                if (!recette) {
+
+                    alert(
+                        "Recette introuvable."
+                    );
+
+                    window.location.href = "/";
+
+                    return;
+
+                }
+
+
+                // ==================================
+                // NOM
+                // ==================================
+
+                document.getElementById(
+                    "recipe-title"
+                ).textContent =
+                    recette.name || "Recette";
+
+
+                // ==================================
+                // TEMPS
+                // ==================================
+
+                document.getElementById(
+                    "recipe-time"
+                ).textContent =
+                    recette.preparation_time || "";
+
+
+                // ==================================
+                // PREPARATION
+                // ==================================
+
+                document.getElementById(
+                    "recipe-description"
+                ).textContent =
+                    recette.description || "";
+
+
+                // ==================================
+                // PHOTO
+                // ==================================
+
+                const photo =
+                    document.getElementById(
+                        "recipe-photo"
+                    );
+
+
+                if (recette.photo) {
+
+                    const url =
+                        URL.createObjectURL(
+                            recette.photo
+                        );
+
+
+                    photo.src = url;
+
+                    photo.style.display =
+                        "block";
+
+                } else {
+
+                    photo.style.display =
+                        "none";
+
+                }
+
+
+                // ==================================
+                // INGREDIENTS
+                // ==================================
+
+                const ingredientsList =
+                    document.getElementById(
+                        "ingredients-list"
+                    );
+
+
+                ingredientsList.innerHTML = "";
+
+
+                const ingredients =
+                    recette.ingredients || [];
+
+
+                ingredients.forEach(
+                    function(ingredient) {
+
+                        const ligne =
+                            document.createElement(
+                                "div"
+                            );
+
+
+                        ligne.className =
+                            "detail-ingredient";
+
+
+                        const nom =
+                            document.createElement(
+                                "span"
+                            );
+
+
+                        nom.textContent =
+                            ingredient.name;
+
+
+                        const quantite =
+                            document.createElement(
+                                "strong"
+                            );
+
+
+                        quantite.textContent =
+                            ingredient.quantity;
+
+
+                        ligne.appendChild(nom);
+
+                        ligne.appendChild(quantite);
+
+
+                        ingredientsList.appendChild(
+                            ligne
+                        );
+
+                    }
+                );
+
+
+            } catch (erreur) {
+
+                console.error(erreur);
+
+                alert(
+                    "Impossible de charger la recette."
+                );
+
+            }
+
+        }
+
+
+        // ==========================================
+        // MODIFIER
+        // ==========================================
+
+        function modifierRecette() {
+
+            window.location.href =
+                "/new-recipe.html?edit=" +
+                recipeId;
+
+        }
+
+
+        // ==========================================
+        // SUPPRIMER
+        // ==========================================
+
+        async function supprimerRecette() {
+
+            const confirmation =
+                confirm(
+                    "Voulez-vous vraiment supprimer cette recette ?"
+                );
+
+
+            if (!confirmation) {
+
+                return;
+
+            }
+
+
+            try {
+
+                await supprimerRecetteLocalement(
+                    recipeId
+                );
+
+
+                alert(
+                    "Recette supprimée."
+                );
+
+
+                window.location.href = "/";
+
+
+            } catch (erreur) {
+
+                console.error(erreur);
+
+                alert(
+                    "Impossible de supprimer la recette."
+                );
+
+            }
+
+        }
+
+
+        // ==========================================
+        // DEMARRER
+        // ==========================================
+
+        chargerRecette();
+
+
+    </script>
+
+
+</body>
+
+</html>

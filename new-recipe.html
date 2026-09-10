@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title id="page-title">
+        Nouvelle recette
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="static/style.css"
+    >
+
+    <link
+        rel="manifest"
+        href="/manifest.json"
+    >
+
+    <link
+        rel="apple-touch-icon"
+        href="static/icons/apple-touch-icon.png"
+    >
+
+    <script src="static/app.js"></script>
+
+</head>
+
+
+<body>
+
+
+    <!-- ==========================================
+         HEADER
+         ========================================== -->
+
+    <header class="top-bar">
+
+        <button
+            class="back-button"
+            onclick="retourAccueil()"
+        >
+            ←
+        </button>
+
+        <h1 id="form-title">
+            Nouvelle recette
+        </h1>
+
+    </header>
+
+
+    <main>
+
+        <div class="form-container">
+
+
+            <!-- ==========================================
+                 NOM
+                 ========================================== -->
+
+            <label for="recipe-name">
+                Nom de la recette
+            </label>
+
+            <input
+                type="text"
+                id="recipe-name"
+                placeholder="Ex : Carbonara"
+            >
+
+
+            <!-- ==========================================
+                 TEMPS
+                 ========================================== -->
+
+            <label for="recipe-time">
+                Temps de préparation
+            </label>
+
+            <input
+                type="text"
+                id="recipe-time"
+                placeholder="Ex : 25 min"
+            >
+
+
+            <!-- ==========================================
+                 INGREDIENTS
+                 ========================================== -->
+
+            <label>
+                Ingrédients
+            </label>
+
+            <div id="ingredients-container">
+
+                <div class="ingredient-row">
+
+                    <input
+                        type="text"
+                        placeholder="Ingrédient"
+                    >
+
+                    <input
+                        type="text"
+                        placeholder="Quantité"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="secondary-button"
+                onclick="ajouterIngredient()"
+            >
+                + Ajouter un ingrédient
+            </button>
+
+
+            <!-- ==========================================
+                 PREPARATION
+                 ========================================== -->
+
+            <label for="recipe-description">
+                Préparation
+            </label>
+
+            <textarea
+                id="recipe-description"
+                placeholder="Décris les étapes de préparation..."
+            ></textarea>
+
+
+            <!-- ==========================================
+                 PHOTO
+                 ========================================== -->
+
+            <label for="recipe-photo">
+                Photo de la recette
+            </label>
+
+            <input
+                type="file"
+                id="recipe-photo"
+                accept="image/*"
+            >
+
+
+            <!-- APERCU PHOTO -->
+
+            <img
+                id="photo-preview"
+                alt="Aperçu de la recette"
+                style="
+                    display: none;
+                    width: 100%;
+                    max-height: 300px;
+                    object-fit: cover;
+                    border: 3px solid #111111;
+                    border-radius: 14px;
+                    margin-top: 10px;
+                "
+            >
+
+
+            <!-- ==========================================
+                 TERMINER
+                 ========================================== -->
+
+            <button
+                type="button"
+                class="finish-button"
+                onclick="enregistrerRecette()"
+            >
+                Terminer
+            </button>
+
+
+        </div>
+
+    </main>
+
+
+    <script>
+
+
+        // ==========================================
+        // SAVOIR SI ON MODIFIE UNE RECETTE
+        // ==========================================
+
+        const params =
+            new URLSearchParams(
+                window.location.search
+            );
+
+        const recipeId =
+            params.get("edit");
+
+
+        // ==========================================
+        // PHOTO EXISTANTE
+        // ==========================================
+
+        let anciennePhoto = null;
+
+
+        // ==========================================
+        // RETOUR
+        // ==========================================
+
+        function retourAccueil() {
+
+            if (recipeId) {
+
+                window.location.href =
+                    "/recipe.html?id=" + recipeId;
+
+            } else {
+
+                window.location.href = "/";
+
+            }
+
+        }
+
+
+        // ==========================================
+        // AJOUTER UN INGREDIENT
+        // ==========================================
+
+        function ajouterIngredient(
+            nom = "",
+            quantite = ""
+        ) {
+
+            const container =
+                document.getElementById(
+                    "ingredients-container"
+                );
+
+
+            const ligne =
+                document.createElement("div");
+
+            ligne.className =
+                "ingredient-row";
+
+
+            const inputNom =
+                document.createElement("input");
+
+            inputNom.type = "text";
+            inputNom.placeholder = "Ingrédient";
+            inputNom.value = nom;
+
+
+            const inputQuantite =
+                document.createElement("input");
+
+            inputQuantite.type = "text";
+            inputQuantite.placeholder = "Quantité";
+            inputQuantite.value = quantite;
+
+
+            ligne.appendChild(inputNom);
+            ligne.appendChild(inputQuantite);
+
+            container.appendChild(ligne);
+
+        }
+
+
+        // ==========================================
+        // AFFICHER UNE PHOTO STOCKEE
+        // ==========================================
+
+        function afficherPhoto(photo) {
+
+            if (!photo) {
+                return;
+            }
+
+
+            const preview =
+                document.getElementById(
+                    "photo-preview"
+                );
+
+
+            const url =
+                URL.createObjectURL(photo);
+
+
+            preview.src = url;
+
+            preview.style.display =
+                "block";
+
+        }
+
+
+        // ==========================================
+        // CHARGER UNE RECETTE POUR LA MODIFIER
+        // ==========================================
+
+        async function chargerRecette() {
+
+            if (!recipeId) {
+                return;
+            }
+
+
+            try {
+
+                const recette =
+                    await obtenirRecette(
+                        recipeId
+                    );
+
+
+                if (!recette) {
+
+                    alert(
+                        "Impossible de trouver la recette."
+                    );
+
+                    window.location.href = "/";
+
+                    return;
+
+                }
+
+
+                // ==================================
+                // TITRE
+                // ==================================
+
+                document.getElementById(
+                    "form-title"
+                ).textContent =
+                    "Modifier la recette";
+
+
+                document.getElementById(
+                    "page-title"
+                ).textContent =
+                    "Modifier la recette";
+
+
+                // ==================================
+                // NOM
+                // ==================================
+
+                document.getElementById(
+                    "recipe-name"
+                ).value =
+                    recette.name || "";
+
+
+                // ==================================
+                // TEMPS
+                // ==================================
+
+                document.getElementById(
+                    "recipe-time"
+                ).value =
+                    recette.preparation_time || "";
+
+
+                // ==================================
+                // PREPARATION
+                // ==================================
+
+                document.getElementById(
+                    "recipe-description"
+                ).value =
+                    recette.description || "";
+
+
+                // ==================================
+                // INGREDIENTS
+                // ==================================
+
+                const container =
+                    document.getElementById(
+                        "ingredients-container"
+                    );
+
+
+                container.innerHTML = "";
+
+
+                if (
+                    recette.ingredients &&
+                    recette.ingredients.length > 0
+                ) {
+
+                    recette.ingredients.forEach(
+                        function(ingredient) {
+
+                            ajouterIngredient(
+                                ingredient.name,
+                                ingredient.quantity
+                            );
+
+                        }
+                    );
+
+                } else {
+
+                    ajouterIngredient();
+
+                }
+
+
+                // ==================================
+                // PHOTO EXISTANTE
+                // ==================================
+
+                if (recette.photo) {
+
+                    anciennePhoto =
+                        recette.photo;
+
+                    afficherPhoto(
+                        anciennePhoto
+                    );
+
+                }
+
+
+            } catch (erreur) {
+
+                console.error(erreur);
+
+                alert(
+                    "Impossible de charger la recette."
+                );
+
+            }
+
+        }
+
+
+        // ==========================================
+        // ENREGISTRER LA RECETTE
+        // ==========================================
+
+        async function enregistrerRecette() {
+
+
+            // ==================================
+            // RECUPERER LES INFORMATIONS
+            // ==================================
+
+            const nom =
+                document.getElementById(
+                    "recipe-name"
+                ).value.trim();
+
+
+            const temps =
+                document.getElementById(
+                    "recipe-time"
+                ).value.trim();
+
+
+            const preparation =
+                document.getElementById(
+                    "recipe-description"
+                ).value;
+
+
+            // ==================================
+            // VERIFIER LE NOM
+            // ==================================
+
+            if (nom === "") {
+
+                alert(
+                    "Veuillez entrer un nom de recette."
+                );
+
+                return;
+
+            }
+
+
+            // ==================================
+            // RECUPERER LES INGREDIENTS
+            // ==================================
+
+            const lignes =
+                document.querySelectorAll(
+                    ".ingredient-row"
+                );
+
+
+            const listeIngredients = [];
+
+
+            lignes.forEach(
+                function(ligne) {
+
+                    const champs =
+                        ligne.querySelectorAll(
+                            "input"
+                        );
+
+
+                    const nomIngredient =
+                        champs[0].value.trim();
+
+
+                    const quantite =
+                        champs[1].value.trim();
+
+
+                    if (
+                        nomIngredient !== ""
+                    ) {
+
+                        listeIngredients.push({
+
+                            name: nomIngredient,
+
+                            quantity: quantite
+
+                        });
+
+                    }
+
+                }
+            );
+
+
+            // ==================================
+            // PHOTO
+            // ==================================
+
+            const photoInput =
+                document.getElementById(
+                    "recipe-photo"
+                );
+
+
+            const fichierPhoto =
+                photoInput.files[0];
+
+
+            let photo = anciennePhoto;
+
+
+            if (fichierPhoto) {
+
+                photo = fichierPhoto;
+
+            }
+
+
+            // ==================================
+            // CREER L'OBJET RECETTE
+            // ==================================
+
+            const recette = {
+
+                name: nom,
+
+                preparation_time: temps,
+
+                description: preparation,
+
+                ingredients: listeIngredients,
+
+                photo: photo || null
+
+            };
+
+
+            // ==================================
+            // SAUVEGARDER
+            // ==================================
+
+            try {
+
+
+                if (recipeId) {
+
+                    // ==================================
+                    // MODIFICATION
+                    // ==================================
+
+                    await modifierRecette(
+                        recipeId,
+                        recette
+                    );
+
+
+                    alert(
+                        "Recette modifiée !"
+                    );
+
+
+                    window.location.href =
+                        "/recipe.html?id=" +
+                        recipeId;
+
+
+                } else {
+
+                    // ==================================
+                    // NOUVELLE RECETTE
+                    // ==================================
+
+                    const id =
+                        await ajouterRecette(
+                            recette
+                        );
+
+
+                    alert(
+                        "Recette enregistrée !"
+                    );
+
+
+                    window.location.href =
+                        "/recipe.html?id=" +
+                        id;
+
+                }
+
+
+            } catch (erreur) {
+
+                console.error(erreur);
+
+                alert(
+                    "Impossible d'enregistrer la recette."
+                );
+
+            }
+
+        }
+
+
+        // ==========================================
+        // APERCU DE LA PHOTO
+        // ==========================================
+
+        const photoInput =
+            document.getElementById(
+                "recipe-photo"
+            );
+
+
+        const photoPreview =
+            document.getElementById(
+                "photo-preview"
+            );
+
+
+        photoInput.addEventListener(
+            "change",
+            function() {
+
+
+                const fichier =
+                    photoInput.files[0];
+
+
+                if (fichier) {
+
+
+                    const url =
+                        URL.createObjectURL(
+                            fichier
+                        );
+
+
+                    photoPreview.src =
+                        url;
+
+
+                    photoPreview.style.display =
+                        "block";
+
+                }
+
+            }
+        );
+
+
+        // ==========================================
+        // DEMARRER LA PAGE
+        // ==========================================
+
+        chargerRecette();
+
+
+    </script>
+
+
+</body>
+
+</html>

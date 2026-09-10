@@ -1,0 +1,647 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+
+/* ==========================================
+   PAGE GENERALE
+   ========================================== */
+
+html,
+body {
+    min-height: 100%;
+    margin: 0;
+}
+
+
+body {
+    font-family: Arial, sans-serif;
+
+    background: #ffffff;
+    color: #111111;
+
+    padding: 20px;
+
+    max-width: 700px;
+    margin: 0 auto;
+
+    min-height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* ==========================================
+   HEADER
+   ========================================== */
+
+.top-bar {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 25px;
+}
+
+
+.top-bar h1 {
+    font-size: 32px;
+
+    line-height: 1.1;
+
+    flex: 1;
+}
+
+
+/* ==========================================
+   BOUTON +
+   ========================================== */
+
+.add-button {
+    width: 48px;
+    height: 48px;
+
+    flex-shrink: 0;
+
+    border: 3px solid #111111;
+
+    border-radius: 14px;
+
+    background: #ffffff;
+
+    color: rgb(0, 0, 0);
+
+    font-size: 32px;
+
+    line-height: 1;
+
+    cursor: pointer;
+}
+
+
+/* ==========================================
+   BOUTON RETOUR
+   ========================================== */
+
+.back-button {
+    width: 48px;
+    height: 48px;
+
+    flex-shrink: 0;
+
+    border: 3px solid #111111;
+
+    border-radius: 14px;
+
+    background: #ffffff;
+
+    color: rgb(0, 0, 0);
+
+    font-size: 28px;
+
+    cursor: pointer;
+}
+
+
+/* ==========================================
+   RECHERCHE
+   ========================================== */
+
+.search-container {
+    margin-bottom: 25px;
+}
+
+
+.search-container input {
+    width: 100%;
+
+    padding: 15px 18px;
+
+    border: 3px solid #111111;
+
+    border-radius: 15px;
+
+    font-size: 17px;
+
+    outline: none;
+}
+
+
+.search-container input:focus {
+    box-shadow: 0 0 0 2px #111111;
+}
+
+
+/* ==========================================
+   PAGE ACCUEIL
+   ========================================== */
+
+.home-page {
+    flex: 1;
+
+    display: flex;
+
+    flex-direction: column;
+
+    min-height: 0;
+
+    padding-bottom: 90px;
+}
+
+
+/* ==========================================
+   GRILLE DES RECETTES
+   ========================================== */
+
+.recipes-grid {
+    display: grid;
+
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 15px;
+}
+
+
+/* ==========================================
+   CARTE RECETTE
+   ========================================== */
+
+.recipe-card {
+    position: relative;
+
+    height: 190px;
+
+    border: 3px solid #111111;
+
+    border-radius: 18px;
+
+    overflow: hidden;
+
+    cursor: pointer;
+
+    background: #eeeeee;
+
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+
+.recipe-card:active {
+    transform: scale(0.97);
+}
+
+
+/* ==========================================
+   IMAGE DE LA CARTE
+   ========================================== */
+
+.recipe-image {
+    width: 100%;
+
+    height: 100%;
+
+    background-size: cover;
+
+    background-position: center;
+
+    background-repeat: no-repeat;
+
+    background-color: #eeeeee;
+}
+
+
+/* ==========================================
+   NOM DE LA RECETTE
+   ========================================== */
+
+.recipe-name {
+    position: absolute;
+
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    padding: 12px;
+
+    background: rgba(0, 0, 0, 0.70);
+
+    color: white;
+
+    font-size: 18px;
+
+    font-weight: bold;
+
+    line-height: 1.2;
+}
+
+
+/* ==========================================
+   FORMULAIRE
+   ========================================== */
+
+.form-container {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 12px;
+}
+
+
+.form-container label {
+    font-size: 18px;
+
+    font-weight: bold;
+
+    margin-top: 10px;
+}
+
+
+.form-container input,
+.form-container textarea {
+    width: 100%;
+
+    padding: 14px;
+
+    border: 3px solid #111111;
+
+    border-radius: 14px;
+
+    font-size: 16px;
+
+    font-family: Arial, sans-serif;
+
+    outline: none;
+}
+
+
+.form-container input:focus,
+.form-container textarea:focus {
+    box-shadow: 0 0 0 2px #111111;
+}
+
+
+.form-container textarea {
+    min-height: 180px;
+
+    resize: vertical;
+}
+
+
+/* ==========================================
+   INGREDIENTS DU FORMULAIRE
+   ========================================== */
+
+.ingredient-row {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 10px;
+
+    margin-bottom: 5px;
+}
+
+
+/* ==========================================
+   BOUTON SECONDAIRE
+   ========================================== */
+
+.secondary-button {
+    padding: 15px;
+
+    border: 3px solid #111111;
+
+    border-radius: 14px;
+
+    background: white;
+
+    color: #111111;
+
+    font-size: 17px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+
+/* ==========================================
+   BOUTON TERMINER
+   ========================================== */
+
+.finish-button {
+    padding: 16px;
+
+    margin-top: 20px;
+
+    border: 3px solid #111111;
+
+    border-radius: 14px;
+
+    background: #111111;
+
+    color: white;
+
+    font-size: 17px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+
+/* ==========================================
+   BOUTONS SAUVEGARDE / RESTAURATION
+   ========================================== */
+
+.backup-buttons {
+    position: fixed;
+
+    left: 15px;
+
+    right: 15px;
+
+    bottom: calc(
+        15px + env(safe-area-inset-bottom)
+    );
+
+    display: flex;
+
+    flex-direction: row;
+
+    gap: 10px;
+
+    width: auto;
+
+    z-index: 1000;
+}
+
+
+.backup-buttons .secondary-button {
+    flex: 1;
+
+    width: 0;
+
+    min-width: 0;
+
+    margin: 0;
+
+    padding: 13px 5px;
+
+    border: 3px solid #111111;
+
+    border-radius: 14px;
+
+    background: white;
+
+    color: #111111;
+
+    font-size: 14px;
+
+    font-weight: bold;
+
+    text-align: center;
+
+    cursor: pointer;
+}
+
+
+/* ==========================================
+   PAGE DETAIL
+   ========================================== */
+
+.recipe-detail {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 15px;
+}
+
+
+/* ==========================================
+   TEMPS
+   ========================================== */
+
+.detail-time {
+    font-size: 20px;
+
+    font-weight: bold;
+
+    margin-bottom: 5px;
+}
+
+
+/* ==========================================
+   PHOTO DETAIL
+   ========================================== */
+
+.detail-photo {
+    width: 100%;
+
+    max-height: 350px;
+
+    object-fit: cover;
+
+    border: 3px solid #111111;
+
+    border-radius: 18px;
+
+    margin-bottom: 10px;
+}
+
+
+/* ==========================================
+   TITRES DETAIL
+   ========================================== */
+
+.recipe-detail h2 {
+    font-size: 25px;
+
+    margin-top: 10px;
+}
+
+
+/* ==========================================
+   LISTE INGREDIENTS
+   ========================================== */
+
+#ingredients-list {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+}
+
+
+.detail-ingredient {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 15px;
+
+    padding: 12px 14px;
+
+    border: 3px solid #111111;
+
+    border-radius: 14px;
+
+    font-size: 17px;
+}
+
+
+.detail-ingredient span {
+    overflow-wrap: anywhere;
+}
+
+
+.detail-ingredient strong {
+    flex-shrink: 0;
+
+    font-weight: bold;
+}
+
+
+/* ==========================================
+   PREPARATION
+   ========================================== */
+
+.detail-description {
+    white-space: pre-wrap;
+
+    padding: 15px;
+
+    border: 3px solid #111111;
+
+    border-radius: 14px;
+
+    font-size: 17px;
+
+    line-height: 1.5;
+}
+
+
+/* ==========================================
+   BOUTONS DETAIL
+   ========================================== */
+
+.recipe-actions {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 10px;
+
+    margin-top: 15px;
+
+    padding-bottom: 20px;
+}
+
+
+.edit-button,
+.delete-button {
+    width: 100%;
+
+    padding: 16px;
+
+    border: 3px solid #111111;
+
+    border-radius: 14px;
+
+    font-size: 17px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+
+.edit-button {
+    background: #111111;
+
+    color: white;
+}
+
+
+.delete-button {
+    background: white;
+
+    color: #111111;
+}
+
+
+/* ==========================================
+   MOBILE
+   ========================================== */
+
+@media (max-width: 500px) {
+
+    body {
+        padding: 15px;
+    }
+
+
+    .top-bar h1 {
+        font-size: 28px;
+    }
+
+
+    .recipes-grid {
+        gap: 10px;
+    }
+
+
+    .recipe-card {
+        height: 165px;
+
+        border-radius: 15px;
+    }
+
+
+    .recipe-name {
+        font-size: 16px;
+
+        padding: 10px;
+    }
+
+
+    .ingredient-row {
+        grid-template-columns: 1fr 1fr;
+
+        gap: 7px;
+    }
+
+
+    .backup-buttons {
+        left: 15px;
+
+        right: 15px;
+
+        gap: 8px;
+
+        bottom: calc(
+            10px + env(safe-area-inset-bottom)
+        );
+    }
+
+
+    .backup-buttons .secondary-button {
+        font-size: 14px;
+
+        padding: 12px 5px;
+    }
+
+}
