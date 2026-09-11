@@ -1,8 +1,9 @@
-const CACHE_NAME = "mes-recettes-github-v2";
+const CACHE_NAME = "mes-recettes-github-v3";
 
 const FILES_TO_CACHE = [
     "./",
     "./index.html",
+    "./recettes.html",
     "./new-recipe.html",
     "./recipe.html",
     "./manifest.json",
