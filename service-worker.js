@@ -1,8 +1,7 @@
-const CACHE_NAME = "mes-recettes-github-v3";
+const CACHE_NAME = "mes-recettes-github-v4";
 
 const FILES_TO_CACHE = [
     "./",
-    "./index.html",
     "./recettes.html",
     "./new-recipe.html",
     "./recipe.html",
@@ -15,149 +14,89 @@ const FILES_TO_CACHE = [
     "./static/icons/apple-touch-icon.png"
 ];
 
+self.addEventListener("install", function(event) {
+    event.waitUntil(
+        caches.open(CACHE_NAME).then(function(cache) {
+            return cache.addAll(FILES_TO_CACHE);
+        })
+    );
 
-self.addEventListener(
-    "install",
-    function(event) {
+    self.skipWaiting();
+});
 
-        event.waitUntil(
+self.addEventListener("activate", function(event) {
+    event.waitUntil(
+        caches.keys().then(function(noms) {
+            return Promise.all(
+                noms
+                    .filter(function(nom) {
+                        return nom !== CACHE_NAME;
+                    })
+                    .map(function(nom) {
+                        return caches.delete(nom);
+                    })
+            );
+        })
+    );
 
-            caches
-                .open(CACHE_NAME)
-                .then(
-                    function(cache) {
+    self.clients.claim();
+});
 
-                        return cache.addAll(
-                            FILES_TO_CACHE
-                        );
+self.addEventListener("fetch", function(event) {
 
-                    }
-                )
+    const request = event.request;
 
-        );
-
-        self.skipWaiting();
-
+    if (request.method !== "GET") {
+        return;
     }
-);
 
-
-self.addEventListener(
-    "activate",
-    function(event) {
-
-        event.waitUntil(
-
-            caches
-                .keys()
-                .then(
-                    function(noms) {
-
-                        return Promise.all(
-
-                            noms
-                                .filter(
-                                    function(nom) {
-
-                                        return nom !== CACHE_NAME;
-
-                                    }
-                                )
-                                .map(
-                                    function(nom) {
-
-                                        return caches.delete(
-                                            nom
-                                        );
-
-                                    }
-                                )
-
-                        );
-
-                    }
-                )
-
-        );
-
-        self.clients.claim();
-
-    }
-);
-
-
-self.addEventListener(
-    "fetch",
-    function(event) {
-
-        const request =
-            event.request;
-
-
-        if (
-            request.method !== "GET"
-        ) {
-
-            return;
-
-        }
-
+    // Pour les pages HTML :
+    // on demande d'abord la version actuelle au serveur.
+    if (request.mode === "navigate") {
 
         event.respondWith(
+            fetch(request)
+                .then(function(reponse) {
 
-            caches
-                .match(request)
-                .then(
-                    function(reponseCache) {
+                    const copie = reponse.clone();
 
-                        if (reponseCache) {
+                    caches.open(CACHE_NAME).then(function(cache) {
+                        cache.put(request, copie);
+                    });
 
-                            return reponseCache;
-
-                        }
-
-
-                        return fetch(request)
-                            .then(
-                                function(reponse) {
-
-                                    if (
-                                        !reponse ||
-                                        reponse.status !== 200
-                                    ) {
-
-                                        return reponse;
-
-                                    }
-
-
-                                    const copie =
-                                        reponse.clone();
-
-
-                                    caches
-                                        .open(CACHE_NAME)
-                                        .then(
-                                            function(cache) {
-
-                                                cache.put(
-                                                    request,
-                                                    copie
-                                                );
-
-                                            }
-                                        );
-
-
-                                    return reponse;
-
-                                }
-                            );
-
-                    }
-                )
-
+                    return reponse;
+                })
+                .catch(function() {
+                    return caches.match(request);
+                })
         );
 
+        return;
     }
-);
+
+    // Pour les autres fichiers :
+    // cache d'abord, puis réseau.
+    event.respondWith(
+        caches.match(request).then(function(reponseCache) {
+
+            if (reponseCache) {
+                return reponseCache;
+            }
+
+            return fetch(request).then(function(reponse) {
+
+                if (!reponse || reponse.status !== 200) {
+                    return reponse;
+                }
+
+                const copie = reponse.clone();
+
+                caches.open(CACHE_NAME).then(function(cache) {
+                    cache.put(request, copie);
+                });
+
+                return reponse;
+            });
+        })
+    );
+});
