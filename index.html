@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Food</title>
+
+    <link
+        rel="stylesheet"
+        href="static/style.css"
+    >
+
+    <link
+        rel="manifest"
+        href="./manifest.json"
+    >
+
+    <link
+        rel="apple-touch-icon"
+        href="static/icons/apple-touch-icon.png"
+    >
+
+    <script src="static/app.js"></script>
+
+</head>
+
+
+<body class="main-menu-page">
+
+
+    <main class="main-menu">
+
+
+        <!-- ==========================================
+             TITRE
+             ========================================== -->
+
+        <header class="main-menu-header">
+
+            <h1>
+                Food
+            </h1>
+
+        </header>
+
+
+        <!-- ==========================================
+             MENU
+             ========================================== -->
+
+        <div class="main-menu-buttons">
+
+
+            <!-- RECETTES -->
+
+            <button
+                class="main-menu-button"
+                onclick="window.location.href='./recettes.html'"
+            >
+                Recettes
+            </button>
+
+
+            <!-- INVENTAIRE -->
+
+            <button
+                class="main-menu-button"
+                onclick="menuBientot()"
+            >
+                Inventaire
+            </button>
+
+
+            <!-- BOUTON 3 -->
+
+            <button
+                class="main-menu-button"
+                onclick="menuBientot()"
+            >
+                À venir
+            </button>
+
+
+            <!-- BOUTON 4 -->
+
+            <button
+                class="main-menu-button"
+                onclick="menuBientot()"
+            >
+                À venir
+            </button>
+
+
+        </div>
+
+
+    </main>
+
+
+    <script>
+
+        function menuBientot() {
+
+            alert(
+                "Cette fonction sera programmée plus tard."
+            );
+
+        }
+
+
+        // ==========================================
+        // SERVICE WORKER
+        // ==========================================
+
+        if ("serviceWorker" in navigator) {
+
+            window.addEventListener(
+                "load",
+                function() {
+
+                    navigator.serviceWorker.register(
+                        "./service-worker.js"
+                    );
+
+                }
+            );
+
+        }
+
+    </script>
+
+
+</body>
+
+</html>
